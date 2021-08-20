@@ -15,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -74,6 +75,14 @@ public class UserController {
                         .withIssuer(request.getRequestURL().toString())
                         .withClaim("roles", user.getRoles().stream().map(Role::getName).collect(Collectors.toList()))
                         .sign(algorithm);
+                Cookie access_token = new Cookie("access_token", accessToken);
+                Cookie refresh_token = new Cookie("refresh_token", refreshToken);
+                access_token.setSecure(true);
+                access_token.setHttpOnly(true);
+                refresh_token.setSecure(true);
+                refresh_token.setHttpOnly(true);
+                response.addCookie(access_token);
+                response.addCookie(refresh_token);
                 Map<String, String> tokens = new HashMap<>();
                 tokens.put("access_token", accessToken);
                 tokens.put("refresh_token", refreshToken);
